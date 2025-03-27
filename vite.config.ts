@@ -11,5 +11,6 @@ export default defineConfig({
 		alias: {
 			'@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs'
 		}
-	}
+	},
+	base: '/RotZ-Assistant/'
 })
