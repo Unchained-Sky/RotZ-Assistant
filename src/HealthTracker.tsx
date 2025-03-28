@@ -1,7 +1,8 @@
-import { ActionIcon, Button, Card, Group, Modal, NumberInput, Stack, Table, Text, TextInput, Title } from '@mantine/core'
+import { ActionIcon, Button, Card, Group, Modal, NumberInput, Stack, Table, Text, TextInput, Title, Tooltip } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { IconMinus, IconPlus, IconReload, IconUserMinus, IconUserPlus } from '@tabler/icons-react'
+import { tooltipProps } from './tooltipProps'
 import { useDamageStore } from './useDamageStore'
 import { useHealthStore } from './useHealthStore'
 
@@ -17,22 +18,26 @@ export default function HealthTracker() {
 
 					<Group>
 						<CustomHit />
-						<ActionIcon
-							variant='transparent'
-							color='white'
-							size='lg'
-							onClick={addPlayerModalHandlers.open}
-						>
-							<IconUserPlus size={100} />
-						</ActionIcon>
-						<ActionIcon
-							variant='transparent'
-							color='white'
-							size='lg'
-							onClick={removePlayerModalHandlers.open}
-						>
-							<IconUserMinus size={100} />
-						</ActionIcon>
+						<Tooltip label='Add Player' {...tooltipProps}>
+							<ActionIcon
+								variant='transparent'
+								color='white'
+								size='lg'
+								onClick={addPlayerModalHandlers.open}
+							>
+								<IconUserPlus size={100} />
+							</ActionIcon>
+						</Tooltip>
+						<Tooltip label='Remove Player' {...tooltipProps}>
+							<ActionIcon
+								variant='transparent'
+								color='white'
+								size='lg'
+								onClick={removePlayerModalHandlers.open}
+							>
+								<IconUserMinus size={100} />
+							</ActionIcon>
+						</Tooltip>
 					</Group>
 				</Group>
 
@@ -55,9 +60,11 @@ function CustomHit() {
 			allowDecimal={false}
 			allowNegative={false}
 			rightSection={(
-				<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ customHit: 0 })}>
-					<IconReload />
-				</ActionIcon>
+				<Tooltip label='Reset Custom Hit' {...tooltipProps}>
+					<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ customHit: 0 })}>
+						<IconReload />
+					</ActionIcon>
+				</Tooltip>
 			)}
 		/>
 	)
@@ -83,7 +90,7 @@ function AddPlayerModal({ opened, close }: PlayerModalProps) {
 	})
 
 	return (
-		<Modal opened={opened} onClose={close} title='Add New Player'>
+		<Modal opened={opened} onClose={close} title='Add Player'>
 			<form
 				onSubmit={form.onSubmit(({ playerName, shield, maxHealth }) => {
 					useHealthStore.getState().addPlayer(playerName, shield, maxHealth)

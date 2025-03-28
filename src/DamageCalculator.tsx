@@ -1,5 +1,7 @@
-import { ActionIcon, Button, Card, Chip, Group, NumberInput, Slider, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Button, Card, Chip, Group, NumberInput, Slider, Stack, Text, Title, Tooltip } from '@mantine/core'
 import { IconReload } from '@tabler/icons-react'
+import { forwardRef } from 'react'
+import { tooltipProps } from './tooltipProps'
 import { type DamageStore, useDamageStore } from './useDamageStore'
 
 export default function DamageCalculator() {
@@ -56,9 +58,11 @@ function MaxHit() {
 			allowDecimal={false}
 			allowNegative={false}
 			rightSection={(
-				<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
-					<IconReload />
-				</ActionIcon>
+				<Tooltip label='Reset Max Hit' {...tooltipProps}>
+					<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
+						<IconReload />
+					</ActionIcon>
+				</Tooltip>
 			)}
 		/>
 	)
@@ -67,22 +71,35 @@ function MaxHit() {
 function Modifiers() {
 	return (
 		<Group miw={335} justify='center'>
-			<Modifier type='confused' />
-			<Modifier type='dodge' />
-			<Modifier type='encouraged' />
+			<Modifier type='confused' description='When rolling for damage, use the smallest number(s)' />
+			<Modifier type='dodge' description='Roll one less attack dice when being attacked' />
+			<Modifier type='encouraged' description='Roll one more attack dice instead of two' />
 		</Group>
 	)
 }
 
-type ModifierProps = {
+type ModifierProps = ModifierChipProps & {
+	description: string
+}
+
+function Modifier({ type, description }: ModifierProps) {
+	return (
+		<Tooltip label={description} {...tooltipProps}>
+			<ModifierChip type={type} />
+		</Tooltip>
+	)
+}
+
+type ModifierChipProps = {
 	type: keyof DamageStore['modifiers']
 }
 
-function Modifier({ type }: ModifierProps) {
+const ModifierChip = forwardRef<HTMLDivElement, ModifierChipProps>(function TestComponent({ type }, ref) {
 	const checked = useDamageStore(state => state.modifiers[type])
 
 	return (
 		<Chip
+			rootRef={ref}
 			tt='capitalize'
 			checked={checked}
 			onChange={() => useDamageStore.setState({
@@ -91,7 +108,8 @@ function Modifier({ type }: ModifierProps) {
 					[type]: !checked
 				}
 			})}
-		>{type}
+		>
+			{type}
 		</Chip>
 	)
-}
+})
