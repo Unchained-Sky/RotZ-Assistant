@@ -16,6 +16,7 @@ export default function HealthTracker() {
 					<Title order={2}>Health Tracker</Title>
 
 					<Group>
+						<CustomHit />
 						<ActionIcon
 							variant='transparent'
 							color='white'
@@ -41,6 +42,24 @@ export default function HealthTracker() {
 			<AddPlayerModal opened={addPlayerModal} close={addPlayerModalHandlers.close} />
 			<RemovePlayerModal opened={removePlayerModal} close={removePlayerModalHandlers.close} />
 		</>
+	)
+}
+
+function CustomHit() {
+	const customHit = useDamageStore(state => state.customHit)
+
+	return (
+		<NumberInput
+			value={customHit}
+			onChange={value => useDamageStore.setState({ customHit: +value })}
+			allowDecimal={false}
+			allowNegative={false}
+			rightSection={(
+				<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ customHit: 0 })}>
+					<IconReload />
+				</ActionIcon>
+			)}
+		/>
 	)
 }
 
@@ -191,7 +210,7 @@ function Players() {
 													size='xs'
 													color='red'
 													onClick={() => {
-														const { damage } = useDamageStore.getState().result
+														const damage = useDamageStore.getState().customHit || useDamageStore.getState().result.damage
 														useHealthStore.setState(state => ({
 															players: {
 																...state.players,

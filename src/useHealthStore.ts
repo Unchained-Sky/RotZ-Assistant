@@ -41,15 +41,15 @@ export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 		set({ players: omit(get().players, [name]) })
 	},
 	updateCurrentHealth: (name, operation) => {
-		const result = useDamageStore.getState().result.damage
+		const damage = useDamageStore.getState().customHit || useDamageStore.getState().result.damage
 		set(state => ({
 			players: {
 				...state.players,
 				[name]: {
 					...state.players[name],
 					currentHealth: operation === 'add'
-						? state.players[name].currentHealth + result
-						: Math.max(state.players[name].currentHealth - result, 0)
+						? Math.min(state.players[name].currentHealth + damage, state.players[name].maxHealth)
+						: Math.max(state.players[name].currentHealth - damage, 0)
 				}
 			}
 		}))

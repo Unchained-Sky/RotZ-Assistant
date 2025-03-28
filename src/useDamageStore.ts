@@ -13,6 +13,7 @@ export type DamageStore = {
 		rolls: number[]
 		damage: number
 	}
+	customHit: number
 	rollDamage: () => void
 }
 
@@ -29,6 +30,7 @@ export const useDamageStore = create<DamageStore>()((_set, get) => ({
 		rolls: [],
 		damage: 0
 	},
+	customHit: 0,
 	rollDamage: () => {
 		if (!get().maxValue) return
 

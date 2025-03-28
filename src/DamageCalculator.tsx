@@ -55,10 +55,8 @@ function MaxHit() {
 			onChange={value => useDamageStore.setState({ maxValue: +value })}
 			allowDecimal={false}
 			allowNegative={false}
-			stepHoldDelay={500}
-			stepHoldInterval={t => Math.max(1000 / t ** 2, 25)}
-			leftSection={(
-				<ActionIcon size='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
+			rightSection={(
+				<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
 					<IconReload />
 				</ActionIcon>
 			)}
