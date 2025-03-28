@@ -1,7 +1,8 @@
 import { ActionIcon, Button, Card, Group, Modal, NumberInput, Stack, Table, Text, TextInput, Title } from '@mantine/core'
+import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
-import { IconMinus, IconPlus, IconUserMinus, IconUserPlus } from '@tabler/icons-react'
-import { useState } from 'react'
+import { IconMinus, IconPlus, IconReload, IconUserMinus, IconUserPlus } from '@tabler/icons-react'
+import { useDamageStore } from './useDamageStore'
 import { useHealthStore } from './useHealthStore'
 
 export default function HealthTracker() {
@@ -49,61 +50,65 @@ type PlayerModalProps = {
 }
 
 function AddPlayerModal({ opened, close }: PlayerModalProps) {
-	const [playerName, setPlayerName] = useState('')
-	const [playerNameError, setPlayerNameError] = useState(false)
-
-	const [maxHealth, setMaxHealth] = useState<string | number>(0)
-	const [maxHealthError, setMaxHealthError] = useState(false)
-
-	const handleClose = () => {
-		close()
-		setTimeout(() => {
-			setPlayerName('')
-			setPlayerNameError(false)
-			setMaxHealth(0)
-			setMaxHealthError(false)
-		}, 200)
-	}
-
-	const handleConfirm = () => {
-		setPlayerNameError(false)
-		setMaxHealthError(false)
-
-		if (playerName.length <= 2) setPlayerNameError(true)
-		if (maxHealth === 0) setMaxHealthError(true)
-		if (playerName.length <= 2 || maxHealth === 0) return
-
-		handleClose()
-		useHealthStore.getState().addPlayer(playerName, +maxHealth)
-	}
+	const form = useForm({
+		mode: 'uncontrolled',
+		initialValues: {
+			playerName: '',
+			shield: 0,
+			maxHealth: 0
+		},
+		validate: {
+			playerName: value => value.length > 2 ? null : 'Player Name must be at least 2 characters long',
+			maxHealth: value => value > 0 ? null : 'Max Health must be a more than 0'
+		}
+	})
 
 	return (
-		<Modal
-			opened={opened}
-			onClose={handleClose}
-			title='Add New Player'
-		>
-			<Stack>
-				<TextInput
-					label='Player Name'
-					error={playerNameError && 'Player Name must be at least 2 characters long'}
-					value={playerName}
-					onChange={event => setPlayerName(event.currentTarget.value)}
-				/>
-				<NumberInput
-					label='Max Health'
-					error={maxHealthError && 'Max Health must be a more than 0'}
-					value={maxHealth}
-					onChange={setMaxHealth}
-					allowDecimal={false}
-					allowNegative={false}
-					hideControls
-				/>
-				<Group>
-					<Button onClick={close} variant='default'>Cancel</Button>
-					<Button onClick={handleConfirm} flex={1}>Confirm</Button>
-				</Group>
-			</Stack>
+		<Modal opened={opened} onClose={close} title='Add New Player'>
+			<form
+				onSubmit={form.onSubmit(({ playerName, shield, maxHealth }) => {
+					useHealthStore.getState().addPlayer(playerName, shield, maxHealth)
+					close()
+					form.reset()
+				})}
+			>
+				<Stack>
+					<TextInput
+						withAsterisk
+						label='Player Name'
+						key={form.key('playerName')}
+						{...form.getInputProps('playerName')}
+					/>
+					<NumberInput
+						hideControls
+						label='Shield'
+						allowDecimal={false}
+						allowNegative={false}
+						key={form.key('shield')}
+						{...form.getInputProps('shield')}
+					/>
+					<NumberInput
+						withAsterisk
+						hideControls
+						label='Max Health'
+						allowDecimal={false}
+						allowNegative={false}
+						key={form.key('maxHealth')}
+						{...form.getInputProps('maxHealth')}
+					/>
+					<Group>
+						<Button
+							variant='default'
+							onClick={() => {
+								close()
+								form.reset()
+							}}
+						>Cancel
+						</Button>
+						<Button type='submit' flex={1}>Confirm</Button>
+					</Group>
+				</Stack>
+			</form>
 		</Modal>
 	)
 }
@@ -141,16 +146,69 @@ function Players() {
 			<Table.Thead>
 				<Table.Tr>
 					<Table.Th miw='60%'>Player</Table.Th>
+					<Table.Th>
+						<Group>
+							<Text size='sm' fw={700}>Shield</Text>
+							<ActionIcon size='xs' variant='transparent' onClick={() => Object.keys(players).forEach(name => useHealthStore.getState().resetShield(name))}>
+								<IconReload />
+							</ActionIcon>
+						</Group>
+					</Table.Th>
 					<Table.Th>Current Health</Table.Th>
 					<Table.Th>Max Health</Table.Th>
 				</Table.Tr>
 			</Table.Thead>
 			<Table.Tbody>
 				{
-					Object.entries(players).map(([playerName, [currentHealth, maxHealth]], i) => {
+					Object.entries(players).map(([playerName, { currentShield, currentHealth, maxHealth }], i) => {
 						return (
 							<Table.Tr key={i}>
 								<Table.Td>{playerName}</Table.Td>
+								<Table.Td>
+									<NumberInput
+										hideControls
+										w={100}
+										value={currentShield}
+										onChange={value => useHealthStore.setState(state => ({
+											players: {
+												...state.players,
+												[playerName]: {
+													...state.players[playerName],
+													currentShield: +value
+												}
+											}
+										}))}
+										rightSection={(
+											<Stack gap={0} ml={8}>
+												<ActionIcon
+													size='xs'
+													color='green'
+													onClick={() => useHealthStore.getState().resetShield(playerName)}
+												>
+													<IconReload />
+												</ActionIcon>
+												<ActionIcon
+													size='xs'
+													color='red'
+													onClick={() => {
+														const { damage } = useDamageStore.getState().result
+														useHealthStore.setState(state => ({
+															players: {
+																...state.players,
+																[playerName]: {
+																	...state.players[playerName],
+																	currentShield: Math.max(state.players[playerName].currentShield - damage, 0)
+																}
+															}
+														}))
+													}}
+												>
+													<IconMinus />
+												</ActionIcon>
+											</Stack>
+										)}
+									/>
+								</Table.Td>
 								<Table.Td>
 									<NumberInput
 										hideControls
@@ -159,7 +217,10 @@ function Players() {
 										onChange={value => useHealthStore.setState(state => ({
 											players: {
 												...state.players,
-												[playerName]: [+value, maxHealth]
+												[playerName]: {
+													...state.players[playerName],
+													currentHealth: +value
+												}
 											}
 										}))}
 										rightSection={(

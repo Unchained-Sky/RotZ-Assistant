@@ -3,19 +3,30 @@ import { persist } from 'zustand/middleware'
 import { useDamageStore } from './useDamageStore'
 
 type HealthStore = {
-	players: Record<string, [currentHealth: number, maxHealth: number]>
-	addPlayer: (name: string, maxHealth: number) => void
+	players: Record<string, {
+		currentShield: number
+		maxShield: number
+		currentHealth: number
+		maxHealth: number
+	}>
+	addPlayer: (name: string, shield: number, maxHealth: number) => void
 	removePlayer: (name: string) => void
 	updateCurrentHealth: (name: string, operation: 'add' | 'remove') => void
+	resetShield: (name: string) => void
 }
 
 export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 	players: {},
-	addPlayer: (name: string, maxHealth: number) => {
+	addPlayer: (name: string, shield: number, maxHealth: number) => {
 		set(state => ({
 			players: {
 				...state.players,
-				[name]: [maxHealth, maxHealth]
+				[name]: {
+					currentShield: shield,
+					maxShield: shield,
+					currentHealth: maxHealth,
+					maxHealth
+				}
 			}
 		}))
 	},
@@ -27,21 +38,30 @@ export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 			) as Omit<T, K>
 		}
 
-		const newPlayers = omit(get().players, [name])
-
-		set({
-			players: newPlayers
-		})
+		set({ players: omit(get().players, [name]) })
 	},
 	updateCurrentHealth: (name, operation) => {
 		const result = useDamageStore.getState().result.damage
 		set(state => ({
 			players: {
 				...state.players,
-				[name]: [
-					operation === 'add' ? state.players[name][0] + result : state.players[name][0] - result,
-					state.players[name][1]
-				]
+				[name]: {
+					...state.players[name],
+					currentHealth: operation === 'add'
+						? state.players[name].currentHealth + result
+						: Math.max(state.players[name].currentHealth - result, 0)
+				}
+			}
+		}))
+	},
+	resetShield: name => {
+		set(state => ({
+			players: {
+				...state.players,
+				[name]: {
+					...state.players[name],
+					currentShield: state.players[name].maxShield
+				}
 			}
 		}))
 	}

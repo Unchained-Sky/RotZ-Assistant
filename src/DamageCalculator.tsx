@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Card, Chip, Group, NumberInput, Slider, Stack, Text, Title } from '@mantine/core'
-import { IconRefresh } from '@tabler/icons-react'
+import { IconReload } from '@tabler/icons-react'
 import { type DamageStore, useDamageStore } from './useDamageStore'
 
 export default function DamageCalculator() {
@@ -59,7 +59,7 @@ function MaxHit() {
 			stepHoldInterval={t => Math.max(1000 / t ** 2, 25)}
 			leftSection={(
 				<ActionIcon size='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
-					<IconRefresh />
+					<IconReload />
 				</ActionIcon>
 			)}
 		/>
