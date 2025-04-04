@@ -1,8 +1,14 @@
 import { create } from 'zustand'
 
 export type DamageStore = {
-	critValue: number
-	maxValue: number
+	numbers: {
+		critValue: number
+		power: number
+		runeFlat: number
+		runeScaling: number
+		runeAcc: number
+		maxValue: number
+	}
 	modifiers: {
 		confused: boolean
 		dodge: boolean
@@ -10,16 +16,25 @@ export type DamageStore = {
 	}
 	result: {
 		crit: boolean
+		diceSides: number
+		minDamage: number
 		rolls: number[]
 		damage: number
 	}
 	customHit: number
+	updateNumber: (key: keyof DamageStore['numbers'], value: number) => void
 	rollDamage: () => void
 }
 
-export const useDamageStore = create<DamageStore>()((_set, get) => ({
-	critValue: 5,
-	maxValue: 0,
+export const useDamageStore = create<DamageStore>()((set, get) => ({
+	numbers: {
+		critValue: 5,
+		power: 0,
+		runeFlat: 0,
+		runeScaling: 0,
+		runeAcc: 0,
+		maxValue: 0
+	},
 	modifiers: {
 		confused: false,
 		dodge: false,
@@ -27,36 +42,44 @@ export const useDamageStore = create<DamageStore>()((_set, get) => ({
 	},
 	result: {
 		crit: false,
+		diceSides: 0,
+		minDamage: 0,
 		rolls: [],
 		damage: 0
 	},
 	customHit: 0,
+	updateNumber: (key, value) => set(state => ({ numbers: { ...state.numbers, [key]: value } })),
 	rollDamage: () => {
-		if (!get().maxValue) return
+		const { critValue, power, runeFlat, runeScaling } = get().numbers
+		const { confused, dodge, encouraged } = get().modifiers
+		const runeAcc = dodge ? 1 : get().numbers.runeAcc
 
-		const crit = Math.floor(Math.random() * 100) < get().critValue
+		const didCrit = confused ? false : Math.floor(Math.random() * 100) < critValue
 
-		let diceCount = 2
-		if (get().modifiers.dodge) diceCount -= 1
-		if (get().modifiers.encouraged) diceCount += 1
+		const maxHit = runeFlat + ((power / 100) * runeScaling)
+		let diceSides = Math.ceil(maxHit / runeAcc)
 
-		const rolls = new Array(diceCount).fill(0).map(() => Math.round(Math.random() * get().maxValue))
+		const accuracyScaling = 5
+		const accuracyPercentage = Math.min(runeAcc * accuracyScaling, 100)
+		const minDamage = confused ? 0 : ~~((diceSides / 100) * accuracyPercentage)
 
-		const calculateDamage = () => {
-			if (rolls.length === 1)	return rolls[0]
+		if (didCrit) diceSides -= minDamage
 
-			if (!crit) return get().modifiers.confused ? Math.min(...rolls) : Math.max(...rolls)
+		let rolls = new Array(runeAcc)
+			.fill(0)
+			.map(() => Math.round(Math.random() * diceSides))
+		if (didCrit) rolls = rolls.map(roll => roll + minDamage)
 
-			const sortedRolls = rolls.toSorted((a, b) => b - a)
-			if (get().modifiers.confused) return (sortedRolls.at(-1) ?? 0) + (sortedRolls.at(-2) ?? 0)
-			return sortedRolls[0] + sortedRolls[1]
-		}
+		let damage = rolls.reduce((a, b) => a + Math.max(b, minDamage), 0)
+		if (encouraged) damage += runeAcc * minDamage
 
 		useDamageStore.setState({
 			result: {
-				crit,
+				crit: didCrit,
+				diceSides,
+				minDamage,
 				rolls,
-				damage: calculateDamage()
+				damage
 			}
 		})
 	}

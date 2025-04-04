@@ -54,18 +54,19 @@ function RollBar({ roll, index }: RollBarProps) {
 	const [barPercentage, setBarPercentage] = useState(0)
 	const [barLabel, setBarLabel] = useState(0)
 
-	useEffect(() => {
-		const maxHit = useDamageStore.getState().maxValue
+	const diceSides = useDamageStore(state => state.result.diceSides)
+	const minDamage = useDamageStore(state => state.result.minDamage)
 
+	useEffect(() => {
 		const interval = setInterval(() => {
-			const roll = Math.round(Math.random() * maxHit)
-			setBarPercentage(~~(roll * 100 / maxHit))
+			const roll = Math.round(Math.random() * diceSides)
+			setBarPercentage(~~(roll * 100 / diceSides))
 			setBarLabel(roll)
 		}, ROLL_INTERVAL)
 
 		const timeout = setTimeout(() => {
 			clearInterval(interval)
-			setBarPercentage(~~(roll * 100 / maxHit))
+			setBarPercentage(~~(roll * 100 / diceSides))
 			setBarLabel(roll)
 		}, RESULT_TIME)
 
@@ -73,13 +74,20 @@ function RollBar({ roll, index }: RollBarProps) {
 			clearInterval(interval)
 			clearTimeout(timeout)
 		}
-	}, [index, roll])
+	}, [diceSides, index, roll])
 
 	return (
 		<Progress.Root transitionDuration={150} size={20}>
 			<Progress.Section value={barPercentage}>
 				<Progress.Label>{barLabel}</Progress.Label>
 			</Progress.Section>
+			{
+				barLabel < minDamage && !useDamageStore.getState().modifiers.confused && (
+					<Progress.Section value={~~(minDamage * 100 / diceSides) - barPercentage} color='green'>
+						<Progress.Label>{minDamage - barLabel}</Progress.Label>
+					</Progress.Section>
+				)
+			}
 		</Progress.Root>
 	)
 }

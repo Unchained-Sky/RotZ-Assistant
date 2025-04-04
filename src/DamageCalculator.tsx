@@ -9,31 +9,53 @@ export default function DamageCalculator() {
 
 	return (
 		<Card component={Stack} gap='md' style={{ gridArea: 'Damage' }}>
-			<Title order={2}>Damage Calculator</Title>
+			<Group justify='space-between'>
+				<Title order={2}>Damage Calculator</Title>
+				<ResetAll />
+			</Group>
 
 			<CritChance />
 
-			<Group grow align='end'>
-				<MaxHit />
+			<RuneStats />
+
+			<Group align='center'>
 				<Modifiers />
-				<Button onClick={rollDamage}>Calculate</Button>
+				<Button onClick={rollDamage} flex={1}>Calculate</Button>
 			</Group>
 		</Card>
 	)
 }
 
+function ResetAll() {
+	return (
+		<Tooltip label='Reset All' {...tooltipProps}>
+			<ActionIcon
+				size='md'
+				variant='default'
+				onClick={() => useDamageStore.setState({
+					numbers: useDamageStore.getInitialState().numbers,
+					modifiers: useDamageStore.getInitialState().modifiers
+				})}
+			>
+				<IconReload />
+			</ActionIcon>
+		</Tooltip>
+	)
+}
+
 function CritChance() {
-	const critValue = useDamageStore(state => state.critValue)
+	const critValue = useDamageStore(state => state.numbers.critValue)
 
 	return (
 		<Stack gap={0}>
 			<Text size='sm'>Crit Chance - {critValue}%</Text>
 			<Slider
 				value={critValue}
-				onChange={value => useDamageStore.setState({ critValue: value })}
+				onChange={value => useDamageStore.getState().updateNumber('critValue', value)}
 				step={5}
 				label={null}
 				mb={20}
+				pr={26}
 				flex={1}
 				marks={[
 					{ value: 0, label: '0%' },
@@ -47,33 +69,80 @@ function CritChance() {
 	)
 }
 
-function MaxHit() {
-	const maxValue = useDamageStore(state => state.maxValue)
+function RuneStats() {
+	const characterPower = useDamageStore(state => state.numbers.power)
+	const runeFlat = useDamageStore(state => state.numbers.runeFlat)
+	const runeScaling = useDamageStore(state => state.numbers.runeScaling)
+	const runeAcc = useDamageStore(state => state.numbers.runeAcc)
 
 	return (
-		<NumberInput
-			label='Max Hit'
-			value={maxValue}
-			onChange={value => useDamageStore.setState({ maxValue: +value })}
-			allowDecimal={false}
-			allowNegative={false}
-			rightSection={(
-				<Tooltip label='Reset Max Hit' {...tooltipProps}>
-					<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ maxValue: 0 })}>
-						<IconReload />
-					</ActionIcon>
-				</Tooltip>
-			)}
-		/>
+		<Group grow>
+			<NumberInput
+				label='Character Power'
+				value={characterPower}
+				onChange={value => useDamageStore.getState().updateNumber('power', +value)}
+				allowDecimal={false}
+				allowNegative={false}
+				rightSection={(
+					<Tooltip label='Reset Character Power' {...tooltipProps}>
+						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('power', 0)}>
+							<IconReload />
+						</ActionIcon>
+					</Tooltip>
+				)}
+			/>
+			<NumberInput
+				label='Rune Flat'
+				value={runeFlat}
+				onChange={value => useDamageStore.getState().updateNumber('runeFlat', +value)}
+				allowDecimal={false}
+				allowNegative={false}
+				rightSection={(
+					<Tooltip label='Reset Rune Flat' {...tooltipProps}>
+						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeFlat', 0)}>
+							<IconReload />
+						</ActionIcon>
+					</Tooltip>
+				)}
+			/>
+			<NumberInput
+				label='Rune Scaling'
+				value={runeScaling}
+				onChange={value => useDamageStore.getState().updateNumber('runeScaling', +value)}
+				allowDecimal={false}
+				allowNegative={false}
+				rightSection={(
+					<Tooltip label='Reset Rune Scaling' {...tooltipProps}>
+						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeScaling', 0)}>
+							<IconReload />
+						</ActionIcon>
+					</Tooltip>
+				)}
+			/>
+			<NumberInput
+				label='Rune Accuracy'
+				value={runeAcc}
+				onChange={value => useDamageStore.getState().updateNumber('runeAcc', +value)}
+				allowDecimal={false}
+				allowNegative={false}
+				rightSection={(
+					<Tooltip label='Reset Rune Accuracy' {...tooltipProps}>
+						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeAcc', 0)}>
+							<IconReload />
+						</ActionIcon>
+					</Tooltip>
+				)}
+			/>
+		</Group>
 	)
 }
 
 function Modifiers() {
 	return (
 		<Group miw={335} justify='center'>
-			<Modifier type='confused' description='When rolling for damage, use the smallest number(s)' />
-			<Modifier type='dodge' description='Roll one less attack dice when being attacked' />
-			<Modifier type='encouraged' description='Roll one more attack dice instead of two' />
+			<Modifier type='confused' description="Minium dice damage set to 0 and it can't crit" />
+			<Modifier type='dodge' description='Rune accuracy is set to 1' />
+			<Modifier type='encouraged' description='Minium dice damage is added to each dice roll' />
 		</Group>
 	)
 }
