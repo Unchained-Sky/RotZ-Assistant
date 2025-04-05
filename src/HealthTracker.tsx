@@ -269,7 +269,22 @@ function Players() {
 										)}
 									/>
 								</Table.Td>
-								<Table.Td>{maxHealth}</Table.Td>
+								<Table.Td>
+									<NumberInput
+										hideControls
+										w={80}
+										value={useHealthStore.getState().players[playerName].maxHealth}
+										onChange={value => useHealthStore.setState(state => ({
+											players: {
+												...state.players,
+												[playerName]: {
+													...state.players[playerName],
+													maxHealth: +value
+												}
+											}
+										}))}
+									/>
+								</Table.Td>
 							</Table.Tr>
 						)
 					})
