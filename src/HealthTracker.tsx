@@ -80,7 +80,8 @@ function AddPlayerModal({ opened, close }: PlayerModalProps) {
 		mode: 'uncontrolled',
 		initialValues: {
 			playerName: '',
-			shield: 0,
+			shieldAmount: 0,
+			shieldDurability: 0,
 			maxHealth: 0
 		},
 		validate: {
@@ -92,8 +93,8 @@ function AddPlayerModal({ opened, close }: PlayerModalProps) {
 	return (
 		<Modal opened={opened} onClose={close} title='Add Player'>
 			<form
-				onSubmit={form.onSubmit(({ playerName, shield, maxHealth }) => {
-					useHealthStore.getState().addPlayer(playerName, shield, maxHealth)
+				onSubmit={form.onSubmit(({ playerName, shieldAmount, shieldDurability, maxHealth }) => {
+					useHealthStore.getState().addPlayer(playerName, shieldAmount, shieldDurability, maxHealth)
 					close()
 					form.reset()
 				})}
@@ -105,14 +106,24 @@ function AddPlayerModal({ opened, close }: PlayerModalProps) {
 						key={form.key('playerName')}
 						{...form.getInputProps('playerName')}
 					/>
-					<NumberInput
-						hideControls
-						label='Shield'
-						allowDecimal={false}
-						allowNegative={false}
-						key={form.key('shield')}
-						{...form.getInputProps('shield')}
-					/>
+					<Group grow>
+						<NumberInput
+							hideControls
+							label='Shield Amount'
+							allowDecimal={false}
+							allowNegative={false}
+							key={form.key('shieldAmount')}
+							{...form.getInputProps('shieldAmount')}
+						/>
+						<NumberInput
+							hideControls
+							label='Shield Durability'
+							allowDecimal={false}
+							allowNegative={false}
+							key={form.key('shieldDurability')}
+							{...form.getInputProps('shieldDurability')}
+						/>
+					</Group>
 					<NumberInput
 						withAsterisk
 						hideControls
@@ -171,7 +182,8 @@ function Players() {
 		<Table>
 			<Table.Thead>
 				<Table.Tr>
-					<Table.Th miw='60%'>Player</Table.Th>
+					<Table.Th miw='40%'>Player</Table.Th>
+					<Table.Th>Shield Durability</Table.Th>
 					<Table.Th>
 						<Group>
 							<Text size='sm' fw={700}>Shield</Text>
@@ -186,14 +198,34 @@ function Players() {
 			</Table.Thead>
 			<Table.Tbody>
 				{
-					Object.entries(players).map(([playerName, { currentShield, currentHealth, maxHealth }], i) => {
+					Object.entries(players).map(([playerName, { shieldDurability, currentShield, currentHealth, maxHealth }], i) => {
 						return (
 							<Table.Tr key={i}>
 								<Table.Td>{playerName}</Table.Td>
 								<Table.Td>
 									<NumberInput
+										w={100}
+										allowDecimal={false}
+										allowNegative={false}
+										value={shieldDurability}
+										max={99}
+										onChange={value => useHealthStore.setState(state => ({
+											players: {
+												...state.players,
+												[playerName]: {
+													...state.players[playerName],
+													shieldDurability: +value
+												}
+											}
+										}))}
+									/>
+								</Table.Td>
+								<Table.Td>
+									<NumberInput
 										hideControls
 										w={100}
+										allowDecimal={false}
+										allowNegative={false}
 										value={currentShield}
 										onChange={value => useHealthStore.setState(state => ({
 											players: {
@@ -239,6 +271,8 @@ function Players() {
 									<NumberInput
 										hideControls
 										w={100}
+										allowDecimal={false}
+										allowNegative={false}
 										value={currentHealth}
 										onChange={value => useHealthStore.setState(state => ({
 											players: {
@@ -272,7 +306,9 @@ function Players() {
 								<Table.Td>
 									<NumberInput
 										hideControls
-										w={80}
+										w={100}
+										allowDecimal={false}
+										allowNegative={false}
 										value={maxHealth}
 										onChange={value => useHealthStore.setState(state => ({
 											players: {

@@ -4,12 +4,13 @@ import { useDamageStore } from './useDamageStore'
 
 type HealthStore = {
 	players: Record<string, {
+		shieldDurability: number
 		currentShield: number
 		maxShield: number
 		currentHealth: number
 		maxHealth: number
 	}>
-	addPlayer: (name: string, shield: number, maxHealth: number) => void
+	addPlayer: (name: string, shieldAmount: number, shieldDurability: number, maxHealth: number) => void
 	removePlayer: (name: string) => void
 	updateCurrentHealth: (name: string, operation: 'add' | 'remove') => void
 	resetShield: (name: string) => void
@@ -17,13 +18,14 @@ type HealthStore = {
 
 export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 	players: {},
-	addPlayer: (name: string, shield: number, maxHealth: number) => {
+	addPlayer: (name: string, shieldAmount: number, shieldDurability: number, maxHealth: number) => {
 		set(state => ({
 			players: {
 				...state.players,
 				[name]: {
-					currentShield: shield,
-					maxShield: shield,
+					shieldDurability,
+					currentShield: shieldAmount,
+					maxShield: shieldAmount,
 					currentHealth: maxHealth,
 					maxHealth
 				}
