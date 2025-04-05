@@ -9,7 +9,7 @@ export default function LastResult() {
 	const result = useDamageStore(state => state.result)
 
 	return (
-		<Card component={Stack} style={{ gridArea: 'LastResult' }}>
+		<Card component={Stack}>
 			<ResultTitle />
 
 			{
@@ -33,9 +33,8 @@ function ResultTitle() {
 	const [resultText, setResultText] = useState('')
 
 	useEffect(() => {
-		if (!result.rolls.length) return
-
 		setResultText('')
+		if (!result.rolls.length) return
 		let text = result.crit ? ' - CRIT ' : ' - '
 		text += result.damage.toString()
 		const timeout = setTimeout(() => setResultText(text), RESULT_TIME + ROLL_INTERVAL)

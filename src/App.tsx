@@ -1,4 +1,4 @@
-import { Box, MantineProvider } from '@mantine/core'
+import { Box, MantineProvider, Stack } from '@mantine/core'
 import DamageCalculator from './DamageCalculator'
 import HealthTracker from './HealthTracker'
 import LastResult from './LastResult'
@@ -11,14 +11,16 @@ export default function App() {
 				style={{
 					display: 'grid',
 					gridTemplateColumns: '1fr 1fr',
-					gridTemplateRows: '1fr 1fr',
-					gridTemplateAreas: '"Damage Players" "LastResult Players"',
+					gridTemplateRows: '1fr',
+					gridTemplateAreas: '"Damage Players"',
 					gap: 'var(--mantine-spacing-md)'
 				}}
 			>
-				<DamageCalculator />
+				<Stack style={{ gridArea: 'Damage' }}>
+					<DamageCalculator />
+					<LastResult />
+				</Stack>
 				<HealthTracker />
-				<LastResult />
 			</Box>
 		</MantineProvider>
 	)

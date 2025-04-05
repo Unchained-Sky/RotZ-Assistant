@@ -8,7 +8,7 @@ export default function DamageCalculator() {
 	const rollDamage = useDamageStore(state => state.rollDamage)
 
 	return (
-		<Card component={Stack} gap='md' style={{ gridArea: 'Damage' }}>
+		<Card component={Stack} gap='md'>
 			<Group justify='space-between'>
 				<Title order={2}>Damage Calculator</Title>
 				<ResetAll />
@@ -140,9 +140,9 @@ function RuneStats() {
 function Modifiers() {
 	return (
 		<Group miw={335} justify='center'>
-			<Modifier type='confused' description="Minium dice damage set to 0 and it can't crit" />
+			<Modifier type='confused' description="Minimum dice damage set to 0 and it can't crit" />
 			<Modifier type='dodge' description='Rune accuracy is set to 1' />
-			<Modifier type='encouraged' description='Minium dice damage is added to each dice roll' />
+			<Modifier type='encouraged' description='Minimum dice damage is added to each dice roll' />
 		</Group>
 	)
 }
