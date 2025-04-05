@@ -273,7 +273,7 @@ function Players() {
 									<NumberInput
 										hideControls
 										w={80}
-										value={useHealthStore.getState().players[playerName].maxHealth}
+										value={maxHealth}
 										onChange={value => useHealthStore.setState(state => ({
 											players: {
 												...state.players,
