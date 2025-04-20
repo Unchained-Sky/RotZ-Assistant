@@ -12,7 +12,7 @@ export default function HealthTracker() {
 
 	return (
 		<>
-			<Card component={Stack} style={{ gridArea: 'Players' }}>
+			<Card component={Stack} mih={170}>
 				<Group justify='space-between'>
 					<Title order={2}>Health Tracker</Title>
 

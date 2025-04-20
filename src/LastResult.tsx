@@ -1,5 +1,7 @@
-import { Card, Progress, Stack, Title } from '@mantine/core'
+import { ActionIcon, Card, Group, Progress, Stack, Title, Tooltip } from '@mantine/core'
+import { IconReload } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
+import { tooltipProps } from './tooltipProps'
 import { useDamageStore } from './useDamageStore'
 
 const RESULT_TIME = 8e2
@@ -41,7 +43,23 @@ function ResultTitle() {
 		return () => clearTimeout(timeout)
 	}, [result])
 
-	return <Title order={2}>Last Result{resultText}</Title>
+	return (
+		<Group justify='space-between'>
+			<Title order={2}>Last Result{resultText}</Title>
+			<Tooltip label='Reset Last Result' {...tooltipProps}>
+				<ActionIcon
+					size='md'
+					variant='default'
+					onClick={() => {
+						const initialValues = useDamageStore.getInitialState().result
+						useDamageStore.setState({ result: initialValues })
+					}}
+				>
+					<IconReload />
+				</ActionIcon>
+			</Tooltip>
+		</Group>
+	)
 }
 
 type RollBarProps = {
