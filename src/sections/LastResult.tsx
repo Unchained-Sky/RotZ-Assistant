@@ -1,8 +1,8 @@
 import { ActionIcon, Card, Group, Progress, Stack, Title, Tooltip } from '@mantine/core'
 import { IconReload } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
-import { tooltipProps } from './tooltipProps'
-import { useDamageStore } from './useDamageStore'
+import { tooltipProps } from '../utils/tooltipProps'
+import { useDamageStore } from '../utils/useDamageStore'
 
 const RESULT_TIME = 8e2
 const ROLL_INTERVAL = 1e2

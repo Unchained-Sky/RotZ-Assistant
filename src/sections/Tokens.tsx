@@ -2,8 +2,9 @@ import { ActionIcon, Button, Card, Group, Modal, NumberInput, Stack, Text, TextI
 import { useDisclosure } from '@mantine/hooks'
 import { IconMinus, IconPlus } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
-import { tooltipProps } from './tooltipProps'
-import { useTokenStore } from './useTokenStore'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { tooltipProps } from '../utils/tooltipProps'
 
 export default function Tokens() {
 	const tokens = useTokenStore(state => state.tokens)
@@ -104,3 +105,34 @@ function RemoveToken({ opened, open, close }: RemoveTokenModalProps) {
 		</>
 	)
 }
+
+type TokenStore = {
+	tokens: Record<string, number>
+	addToken: (name: string) => void
+	updateToken: (name: string, value: number) => void
+	removeToken: (name: string) => void
+}
+
+const useTokenStore = create<TokenStore>()(persist((set, get) => ({
+	tokens: {},
+	addToken: name => {
+		set(state => ({
+			tokens: {
+				...state.tokens,
+				[name]: 0
+			}
+		}))
+	},
+	updateToken: (name, value) => {
+		set(state => ({
+			tokens: {
+				...state.tokens,
+				[name]: value
+			}
+		}))
+	},
+	removeToken: name => {
+		const { [name]: _name, ...tokens } = get().tokens
+		set({ tokens })
+	}
+}), { name: 'rotz-assistant-token-store' }))

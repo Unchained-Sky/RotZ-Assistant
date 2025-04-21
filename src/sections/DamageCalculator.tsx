@@ -1,8 +1,8 @@
 import { ActionIcon, Button, Card, Chip, Group, NumberInput, Slider, Stack, Text, Title, Tooltip } from '@mantine/core'
 import { IconReload } from '@tabler/icons-react'
 import { forwardRef } from 'react'
-import { tooltipProps } from './tooltipProps'
-import { type DamageStore, useDamageStore } from './useDamageStore'
+import { tooltipProps } from '../utils/tooltipProps'
+import { type DamageStore, useDamageStore } from '../utils/useDamageStore'
 
 export default function DamageCalculator() {
 	const rollDamage = useDamageStore(state => state.rollDamage)

@@ -1,10 +1,10 @@
 import { Group, MantineProvider, Stack } from '@mantine/core'
-import CharacterSheet from './CharacterSheet'
-import DamageCalculator from './DamageCalculator'
-import HealthTracker from './HealthTracker'
-import LastResult from './LastResult'
-import Notes from './Notes'
-import Tokens from './Tokens'
+import CharacterSheet from './sections/CharacterSheet'
+import DamageCalculator from './sections/DamageCalculator'
+import HealthTracker from './sections/HealthTracker'
+import LastResult from './sections/LastResult'
+import Notes from './sections/Notes'
+import Tokens from './sections/Tokens'
 
 export default function App() {
 	return (
