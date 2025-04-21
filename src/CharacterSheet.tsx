@@ -1,7 +1,9 @@
-import { Button, Card, Divider, FileInput, Group, Modal, Stack, Textarea, Title } from '@mantine/core'
+import { ActionIcon, Button, Card, Divider, FileInput, Group, Modal, Stack, Textarea, Title, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { IconFileImport } from '@tabler/icons-react'
 import { useState } from 'react'
 import MantineMarkdown from './MantineMarkdown'
+import { tooltipProps } from './tooltipProps'
 
 const PLACEHOLDER_TEXT = `# Character Sheet
 ## Stats
@@ -18,7 +20,11 @@ export default function CharacterSheet() {
 			<Card component={Stack}>
 				<Group justify='space-between'>
 					<Title order={2}>Character Sheet</Title>
-					<Button variant='default' onClick={importModalHandlers.open}>Import</Button>
+					<Tooltip label='Import Character Sheet' {...tooltipProps}>
+						<ActionIcon variant='default' onClick={importModalHandlers.open}>
+							<IconFileImport />
+						</ActionIcon>
+					</Tooltip>
 				</Group>
 				<MantineMarkdown markdown={sheet} />
 			</Card>

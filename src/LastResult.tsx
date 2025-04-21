@@ -48,7 +48,6 @@ function ResultTitle() {
 			<Title order={2}>Last Result{resultText}</Title>
 			<Tooltip label='Reset Last Result' {...tooltipProps}>
 				<ActionIcon
-					size='md'
 					variant='default'
 					onClick={() => {
 						const initialValues = useDamageStore.getInitialState().result

@@ -30,7 +30,6 @@ function ResetAll() {
 	return (
 		<Tooltip label='Reset All' {...tooltipProps}>
 			<ActionIcon
-				size='md'
 				variant='default'
 				onClick={() => useDamageStore.setState({
 					numbers: useDamageStore.getInitialState().numbers,
@@ -85,7 +84,7 @@ function RuneStats() {
 				allowNegative={false}
 				rightSection={(
 					<Tooltip label='Reset Character Power' {...tooltipProps}>
-						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('power', 0)}>
+						<ActionIcon mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('power', 0)}>
 							<IconReload />
 						</ActionIcon>
 					</Tooltip>
@@ -99,7 +98,7 @@ function RuneStats() {
 				allowNegative={false}
 				rightSection={(
 					<Tooltip label='Reset Rune Flat' {...tooltipProps}>
-						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeFlat', 0)}>
+						<ActionIcon mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeFlat', 0)}>
 							<IconReload />
 						</ActionIcon>
 					</Tooltip>
@@ -113,7 +112,7 @@ function RuneStats() {
 				allowNegative={false}
 				rightSection={(
 					<Tooltip label='Reset Rune Scaling' {...tooltipProps}>
-						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeScaling', 0)}>
+						<ActionIcon mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeScaling', 0)}>
 							<IconReload />
 						</ActionIcon>
 					</Tooltip>
@@ -127,7 +126,7 @@ function RuneStats() {
 				allowNegative={false}
 				rightSection={(
 					<Tooltip label='Reset Rune Accuracy' {...tooltipProps}>
-						<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeAcc', 0)}>
+						<ActionIcon mr='sm' variant='default' onClick={() => useDamageStore.getState().updateNumber('runeAcc', 0)}>
 							<IconReload />
 						</ActionIcon>
 					</Tooltip>

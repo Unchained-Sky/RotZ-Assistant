@@ -3,6 +3,7 @@ import CharacterSheet from './CharacterSheet'
 import DamageCalculator from './DamageCalculator'
 import HealthTracker from './HealthTracker'
 import LastResult from './LastResult'
+import Tokens from './Tokens'
 
 export default function App() {
 	return (
@@ -11,6 +12,7 @@ export default function App() {
 				<Stack>
 					<DamageCalculator />
 					<LastResult />
+					<Tokens />
 				</Stack>
 				<Stack>
 					<HealthTracker />

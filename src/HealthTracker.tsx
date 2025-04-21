@@ -16,7 +16,7 @@ export default function HealthTracker() {
 				<Group justify='space-between'>
 					<Title order={2}>Health Tracker</Title>
 
-					<Group>
+					<Group gap='xs'>
 						<CustomHit />
 						<Tooltip label='Add Player' {...tooltipProps}>
 							<ActionIcon
@@ -61,7 +61,7 @@ function CustomHit() {
 			allowNegative={false}
 			rightSection={(
 				<Tooltip label='Reset Custom Hit' {...tooltipProps}>
-					<ActionIcon size='md' mr='sm' variant='default' onClick={() => useDamageStore.setState({ customHit: 0 })}>
+					<ActionIcon mr='sm' variant='default' onClick={() => useDamageStore.setState({ customHit: 0 })}>
 						<IconReload />
 					</ActionIcon>
 				</Tooltip>
