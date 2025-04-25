@@ -4,6 +4,7 @@ import DamageCalculator from './sections/DamageCalculator'
 import HealthTracker from './sections/HealthTracker'
 import LastResult from './sections/LastResult'
 import Notes from './sections/Notes'
+import RandomNumber from './sections/RandomNumber'
 import Tokens from './sections/Tokens'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
 				<Stack>
 					<DamageCalculator />
 					<LastResult />
+					<RandomNumber />
 					<Tokens />
 					<Notes />
 				</Stack>
