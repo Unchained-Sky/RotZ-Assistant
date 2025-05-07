@@ -179,7 +179,7 @@ type MantineMarkdownProps = {
 
 function MantineMarkdown({ markdown }: MantineMarkdownProps) {
 	return (
-		<Stack gap={0}>
+		<Stack gap={0} pr={48}>
 			<Markdown
 				components={{
 					h1(props) {
@@ -192,6 +192,9 @@ function MantineMarkdown({ markdown }: MantineMarkdownProps) {
 						return <Title order={3} pt='xs'>{props.children}</Title>
 					},
 					ul(props) {
+						return <List withPadding>{props.children}</List>
+					},
+					ol(props) {
 						return <List withPadding>{props.children}</List>
 					},
 					li(props) {

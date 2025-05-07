@@ -51,7 +51,7 @@ function CritChance() {
 			<Slider
 				value={critValue}
 				onChange={value => useDamageStore.getState().updateNumber('critValue', value)}
-				step={5}
+				step={1}
 				label={null}
 				mb={20}
 				pr={26}
