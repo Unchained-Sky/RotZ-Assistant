@@ -1,15 +1,17 @@
 /* eslint-disable @stylistic/quote-props */
 /* eslint-disable react/prop-types */
-import { ActionIcon, Button, Card, Divider, FileInput, Group, List, Modal, Stack, Tabs, Text, Textarea, Title, Tooltip } from '@mantine/core'
+import { ActionIcon, Button, Card, Divider, FileInput, Group, List, Modal, NumberInput, Stack, Tabs, Text, Textarea, Title, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconFileDots, IconFileImport } from '@tabler/icons-react'
 import { type } from 'arktype'
-import { useState } from 'react'
+import { type MouseEventHandler, type ReactNode, useState } from 'react'
 import Markdown from 'react-markdown'
 import { Temporal } from 'temporal-polyfill'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { tooltipProps } from '../utils/tooltipProps'
+import { useDamageStore } from '../utils/useDamageStore'
+import { useHealthStore } from '../utils/useHealthStore'
 
 const PLACEHOLDER_MARKDOWN_TEXT = `# Character Sheet
 ## Stats
@@ -317,6 +319,8 @@ type JsonCharacterSheetProps = {
 }
 
 function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
+	const resolveCount = useCharacterSheetStore(state => state.resolveCount)
+
 	return (
 		<Stack gap={0} pr={48}>
 			<Title order={1} pt='xs'>{data.info.name}</Title>
@@ -325,9 +329,27 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 			<List withPadding>
 				<ListItem title='Movement' desc={data.info.stats.movement} />
 				<ListItem title='Health' desc={data.info.stats.health} />
-				<ListItem title='Power' desc={data.info.stats.power} />
+				<ListItem
+					title='Power'
+					desc={(
+						<InlineButton
+							text={data.info.stats.power}
+							tooltip='Click to update power'
+							onClick={() => useDamageStore.getState().updateNumber('power', data.info.stats.power)}
+						/>
+					)}
+				/>
 				<ListItem title='Basic Attack Range' desc={data.info.stats.basicRange} />
-				<ListItem title='Crit Chance' desc={`${data.info.stats.critChance}%`} />
+				<ListItem
+					title='Crit Chance'
+					desc={(
+						<InlineButton
+							text={`${data.info.stats.critChance}%`}
+							tooltip='Click to update crit chance'
+							onClick={() => useDamageStore.getState().updateNumber('critValue', data.info.stats.critChance)}
+						/>
+					)}
+				/>
 				<ListItem title='Shield' desc={`${data.info.stats.shield[0]} (${data.info.stats.shield[1]})`} />
 			</List>
 
@@ -339,13 +361,63 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 			</List>
 
 			<Title order={3} pt='xs'>Primary</Title>
+			<List withPadding>
+				<ListItem
+					title='Basic Attack'
+					desc={(
+						<Group>
+							<InlineButton
+								text='Load'
+								tooltip='Click to update damage calculator'
+								onClick={() => {
+									useDamageStore.getState().updateNumber('runeFlat', 20)
+									useDamageStore.getState().updateNumber('runeScaling', 35)
+									useDamageStore.getState().updateNumber('runeAcc', 2 + ~~(+resolveCount / 25))
+								}}
+							/>
+							<Tooltip label='Resolve Count' {...tooltipProps}>
+								<NumberInput
+									size='xs'
+									maw={64}
+									value={resolveCount}
+									onChange={event => useCharacterSheetStore.setState({ resolveCount: +event })}
+									allowDecimal={false}
+									allowNegative={false}
+									max={9999}
+									stepHoldDelay={500}
+									stepHoldInterval={t => Math.max(1000 / t ** 2, 25)}
+								/>
+							</Tooltip>
+						</Group>
+					)}
+				/>
+			</List>
 			{
 				Object.entries(data.runes.primary).map(([runeName, runeData], i) => {
 					const damageString = runeData.damageDisplay ?? (runeData.damage ? `${runeData.damage[0]}+${runeData.damage[1]}%` : undefined)
+					const name = runeData.damage || runeData.heal
+						? (
+							<InlineButton
+								text={runeName}
+								tooltip='Click to update damage calculator'
+								onClick={() => {
+									if (runeData.damage) {
+										useDamageStore.getState().updateNumber('runeFlat', runeData.damage[0])
+										useDamageStore.getState().updateNumber('runeScaling', runeData.damage[1])
+									}
+									if (runeData.heal) {
+										useDamageStore.getState().updateNumber('runeFlat', runeData.heal[0])
+										useDamageStore.getState().updateNumber('runeScaling', runeData.heal[1])
+									}
+									if (runeData.accuracy) useDamageStore.getState().updateNumber('runeAcc', runeData.accuracy)
+								}}
+							/>
+						)
+						: runeName
 					return (
 						<List key={i} withPadding>
 							<List.Item>
-								{runeName}
+								{name}
 								<List withPadding>
 									<ListItem title={runeData.healing ? 'Damage / Healing' : 'Damage'} desc={damageString} />
 									<ListItem title='Heal' desc={runeData.heal ? `${runeData.heal[0]}+${runeData.heal[1]}%` : undefined} />
@@ -429,7 +501,7 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 
 type ListItemProps = {
 	title: string
-	desc: string | number | undefined
+	desc: string | number | undefined | ReactNode
 }
 
 function ListItem({ title, desc }: ListItemProps) {
@@ -439,6 +511,22 @@ function ListItem({ title, desc }: ListItemProps) {
 			{' '}
 			{desc}
 		</List.Item>
+	)
+}
+
+type InlineButtonProps = {
+	text: string | number
+	tooltip: string
+	onClick: MouseEventHandler<HTMLButtonElement>
+}
+
+function InlineButton({ text, tooltip, onClick }: InlineButtonProps) {
+	return (
+		<Tooltip label={tooltip} {...tooltipProps}>
+			<Button size='compact-xs' color='dark.3' onClick={onClick}>
+				{text}
+			</Button>
+		</Tooltip>
 	)
 }
 
@@ -520,6 +608,7 @@ type CharacterSheetJson = {
 type CharacterSheetStore = {
 	characterSheet: Record<string, CharacterSheetMarkdown | CharacterSheetJson>
 	activeCharacter: string
+	resolveCount: number
 	addMarkdownSheet: (markdown: string) => void
 	addJsonSheet: (json: string) => void
 	removeCharacterSheet: (name: string) => void
@@ -532,6 +621,7 @@ function getTitle(name: string) {
 const useCharacterSheetStore = create<CharacterSheetStore>()(persist((set, get) => ({
 	characterSheet: {},
 	activeCharacter: '',
+	resolveCount: 0,
 	addMarkdownSheet: sheet => {
 		const firstLine = sheet.split('\n')[0]
 		const name = firstLine.startsWith('# ') ? firstLine.replace('# ', '') : 'Unknown'
@@ -563,6 +653,13 @@ const useCharacterSheetStore = create<CharacterSheetStore>()(persist((set, get) 
 				},
 				activeCharacter: title
 			}))
+
+			useHealthStore.getState().addPlayer(
+				out.info.shortName,
+				out.info.stats.shield[0],
+				out.info.stats.shield[1],
+				out.info.stats.health
+			)
 		}
 	},
 	removeCharacterSheet: name => {

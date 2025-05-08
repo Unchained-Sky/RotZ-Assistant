@@ -95,7 +95,7 @@ function RollBar({ roll, index }: RollBarProps) {
 	return (
 		<Progress.Root transitionDuration={150} size={20}>
 			<Progress.Section value={barPercentage}>
-				<Progress.Label>{barLabel}</Progress.Label>
+				<Progress.Label>{Math.round(barLabel * 100) / 100}</Progress.Label>
 			</Progress.Section>
 			{
 				barLabel < minDamage && !useDamageStore.getState().modifiers.confused && (

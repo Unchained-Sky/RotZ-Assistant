@@ -12,6 +12,7 @@ export type DamageStore = {
 	modifiers: {
 		confused: boolean
 		encouraged: boolean
+		perfect: boolean
 	}
 	result: {
 		crit: boolean
@@ -36,7 +37,8 @@ export const useDamageStore = create<DamageStore>()((set, get) => ({
 	},
 	modifiers: {
 		confused: false,
-		encouraged: false
+		encouraged: false,
+		perfect: false
 	},
 	result: {
 		crit: false,
@@ -49,24 +51,24 @@ export const useDamageStore = create<DamageStore>()((set, get) => ({
 	updateNumber: (key, value) => set(state => ({ numbers: { ...state.numbers, [key]: value } })),
 	rollDamage: () => {
 		const { critValue, power, runeFlat, runeScaling } = get().numbers
-		const { confused, encouraged } = get().modifiers
+		const { confused, encouraged, perfect } = get().modifiers
 		const { runeAcc } = get().numbers
 
 		const didCrit = confused ? false : Math.floor(Math.random() * 100) < critValue
 
 		const maxHit = runeFlat + ((power / 100) * runeScaling)
-		const diceSides = Math.ceil(maxHit / runeAcc)
+		const diceSides = maxHit / runeAcc
 
 		const accuracyScaling = 5
 		const accuracyPercentage = Math.min(runeAcc * accuracyScaling, 100)
 		const minDamage = confused ? 0 : ~~((diceSides / 100) * accuracyPercentage)
 
-		const diceCount = didCrit ? runeAcc * 2 : runeAcc
+		const diceCount = didCrit ? Math.min(maxHit, runeAcc) * 2 : Math.min(maxHit, runeAcc)
 		const rolls = new Array(diceCount)
 			.fill(0)
-			.map(() => Math.round(Math.random() * diceSides))
+			.map(() => perfect ? Math.max(1, diceSides) : Math.max(1, Math.round(Math.random() * diceSides)))
 
-		let damage = rolls.reduce((a, b) => a + Math.max(b, minDamage), 0)
+		let damage = Math.round(rolls.reduce((a, b) => a + Math.max(b, minDamage), 0))
 		if (encouraged) damage += runeAcc * minDamage
 
 		useDamageStore.setState({

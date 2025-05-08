@@ -141,6 +141,7 @@ function Modifiers() {
 		<Group miw={231} justify='center'>
 			<Modifier type='confused' description="Minimum dice damage set to 0 and it can't crit" />
 			<Modifier type='encouraged' description='Minimum dice damage is added to each dice roll' />
+			<Modifier type='perfect' description='Every dice rolls the max value' />
 		</Group>
 	)
 }
