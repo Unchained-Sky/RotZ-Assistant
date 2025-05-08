@@ -5,6 +5,7 @@ import HealthTracker from './sections/HealthTracker'
 import LastResult from './sections/LastResult'
 import Notes from './sections/Notes'
 import RandomNumber from './sections/RandomNumber'
+import Rules from './sections/Rules'
 import Tokens from './sections/Tokens'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
 					<RandomNumber />
 					<Tokens />
 					<Notes />
+					<Rules />
 				</Stack>
 				<Stack>
 					<HealthTracker />
