@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 export type DamageStore = {
+	attackName: string
 	numbers: {
 		critValue: number
 		power: number
@@ -27,6 +28,7 @@ export type DamageStore = {
 }
 
 export const useDamageStore = create<DamageStore>()((set, get) => ({
+	attackName: 'Custom',
 	numbers: {
 		critValue: 5,
 		power: 0,
@@ -48,13 +50,20 @@ export const useDamageStore = create<DamageStore>()((set, get) => ({
 		damage: 0
 	},
 	customHit: 0,
-	updateNumber: (key, value) => set(state => ({ numbers: { ...state.numbers, [key]: value } })),
+	updateNumber: (key, value) => {
+		set(state => ({
+			numbers: { ...state.numbers, [key]: value }
+		}))
+		if ((['runeFlat', 'runeScaling', 'runeAcc']).includes(key)) {
+			set({ attackName: 'Custom' })
+		}
+	},
 	rollDamage: () => {
 		const { critValue, power, runeFlat, runeScaling } = get().numbers
 		const { confused, encouraged, perfect } = get().modifiers
 		const { runeAcc } = get().numbers
 
-		const didCrit = confused ? false : Math.floor(Math.random() * 100) < critValue
+		const didCrit = confused ? false : ~~(Math.random() * 100) < critValue
 
 		const maxHit = runeFlat + ((power / 100) * runeScaling)
 		const diceSides = maxHit / runeAcc

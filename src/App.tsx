@@ -1,4 +1,5 @@
 import { Group, MantineProvider, Stack } from '@mantine/core'
+import AttackHistory from './sections/AttackHistory'
 import CharacterSheet from './sections/CharacterSheet'
 import DamageCalculator from './sections/DamageCalculator'
 import HealthTracker from './sections/HealthTracker'
@@ -15,6 +16,7 @@ export default function App() {
 				<Stack>
 					<DamageCalculator />
 					<LastResult />
+					<AttackHistory />
 					<RandomNumber />
 					<Tokens />
 					<Notes />

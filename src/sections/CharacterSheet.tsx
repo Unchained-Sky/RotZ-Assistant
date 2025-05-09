@@ -355,6 +355,7 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 						? (
 							<InlineButton
 								text={runeName}
+								attackName={runeName}
 								onClick={() => {
 									if (runeData.damage) {
 										useDamageStore.getState().updateNumber('runeFlat', runeData.damage[0])
@@ -446,7 +447,7 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 									{summonData.active.map((active, i) => {
 										return (active.damage || active.heal) && !(active.damage && active.heal)
 											? (
-												<List.Item>
+												<List.Item key={i}>
 													<InlineButton
 														text='Active'
 														onClick={() => {
@@ -499,13 +500,21 @@ function ListItem({ title, desc }: ListItemProps) {
 type InlineButtonProps = {
 	text: string | number
 	tooltip?: string
+	attackName?: string
 	onClick: MouseEventHandler<HTMLButtonElement>
 }
 
-function InlineButton({ text, tooltip = 'Click to update damage calculator', onClick }: InlineButtonProps) {
+function InlineButton({ text, tooltip = 'Click to update damage calculator', attackName, onClick }: InlineButtonProps) {
 	return (
 		<Tooltip label={tooltip} {...tooltipProps}>
-			<Button size='compact-xs' color='dark.3' onClick={onClick}>
+			<Button
+				size='compact-xs'
+				color='dark.3'
+				onClick={event => {
+					onClick(event)
+					if (attackName) useDamageStore.setState({ attackName })
+				}}
+			>
 				{text}
 			</Button>
 		</Tooltip>

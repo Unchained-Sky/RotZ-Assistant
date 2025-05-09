@@ -2,6 +2,7 @@ import { ActionIcon, Card, Group, Progress, Stack, Title, Tooltip } from '@manti
 import { IconReload } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { tooltipProps } from '../utils/tooltipProps'
+import { useAttackHistoryStore } from '../utils/useAttackHistoryStore'
 import { useDamageStore } from '../utils/useDamageStore'
 
 const RESULT_TIME = 8e2
@@ -39,7 +40,16 @@ function ResultTitle() {
 		if (!result.rolls.length) return
 		let text = result.crit ? ' - CRIT ' : ' - '
 		text += result.damage.toString()
-		const timeout = setTimeout(() => setResultText(text), RESULT_TIME + ROLL_INTERVAL)
+		const timeout = setTimeout(() => {
+			setResultText(text)
+			useAttackHistoryStore.getState().addAttack({
+				name: useDamageStore.getState().attackName,
+				numbers: useDamageStore.getState().numbers,
+				modifiers: useDamageStore.getState().modifiers,
+				result: useDamageStore.getState().result,
+				time: Date.now()
+			})
+		}, RESULT_TIME + ROLL_INTERVAL)
 		return () => clearTimeout(timeout)
 	}, [result])
 
