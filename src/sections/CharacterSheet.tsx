@@ -325,7 +325,6 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 						<Group>
 							<InlineButton
 								text='Load'
-								tooltip='Click to update damage calculator'
 								onClick={() => {
 									useDamageStore.getState().updateNumber('runeFlat', 20)
 									useDamageStore.getState().updateNumber('runeScaling', 35)
@@ -356,7 +355,6 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 						? (
 							<InlineButton
 								text={runeName}
-								tooltip='Click to update damage calculator'
 								onClick={() => {
 									if (runeData.damage) {
 										useDamageStore.getState().updateNumber('runeFlat', runeData.damage[0])
@@ -445,7 +443,34 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 									<ListItem title='Power'	desc={summonData.power} />
 									<ListItem title='Movement' desc={summonData.movement} />
 									{summonData.passive.map((passive, i) => <ListItem key={i} title='Passive' desc={passive} />)}
-									{summonData.active.map((active, i) => <ListItem key={i} title='Active' desc={active.effect} />)}
+									{summonData.active.map((active, i) => {
+										return (active.damage || active.heal) && !(active.damage && active.heal)
+											? (
+												<List.Item>
+													<InlineButton
+														text='Active'
+														onClick={() => {
+															const { updateNumber } = useDamageStore.getState()
+															updateNumber('power', summonData.power)
+															if (active.accuracy) {
+																updateNumber('runeAcc', active.accuracy ?? 2)
+															}
+															if (active.damage) {
+																updateNumber('runeFlat', active.damage[0])
+																updateNumber('runeScaling', active.damage[1])
+															}
+															if (active.heal) {
+																updateNumber('runeFlat', active.heal[0])
+																updateNumber('runeScaling', active.heal[1])
+															}
+														}}
+													/>
+													{': '}
+													{active.effect}
+												</List.Item>
+											)
+											: <ListItem key={i} title='Active' desc={active.effect} />
+									})}
 								</List>
 							</List.Item>
 						</List>
@@ -473,11 +498,11 @@ function ListItem({ title, desc }: ListItemProps) {
 
 type InlineButtonProps = {
 	text: string | number
-	tooltip: string
+	tooltip?: string
 	onClick: MouseEventHandler<HTMLButtonElement>
 }
 
-function InlineButton({ text, tooltip, onClick }: InlineButtonProps) {
+function InlineButton({ text, tooltip = 'Click to update damage calculator', onClick }: InlineButtonProps) {
 	return (
 		<Tooltip label={tooltip} {...tooltipProps}>
 			<Button size='compact-xs' color='dark.3' onClick={onClick}>
@@ -515,6 +540,7 @@ const parseJson = type('string').pipe.try(
 					passive: 'string[]',
 					active: type({
 						'damage?': ['number', 'number'],
+						'heal?': ['number', 'number'],
 						'accuracy?': 'number',
 						effect: 'string'
 					}).array()
