@@ -436,7 +436,11 @@ function JsonCharacterSheet({ data }: JsonCharacterSheetProps) {
 					return (
 						<List key={i} withPadding>
 							<List.Item>
-								{summonName}
+								<InlineButton
+									text={summonName}
+									onClick={() => useHealthStore.getState().addSummon(summonName, summonData.health[0], summonData.health[1])}
+									tooltip='Add summon to the health tracker'
+								/>
 								<List withPadding>
 									<ListItem title='Cost' desc={summonData.cost} />
 									<ListItem title='Health' desc={`${summonData.health[0]} (${summonData.health[1]})`} />
