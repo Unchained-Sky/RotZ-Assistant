@@ -289,8 +289,9 @@ function Players() {
 		<Table>
 			<Table.Thead>
 				<Table.Tr>
-					<Table.Th miw='40%'>Player</Table.Th>
-					<Table.Th>Shield Durability</Table.Th>
+					<Table.Th miw='35%'>Player</Table.Th>
+					<Table.Th>Barrier</Table.Th>
+					<Table.Th>S-Durability</Table.Th>
 					<Table.Th>
 						<Group>
 							<Text size='sm' fw={700}>Shield</Text>
@@ -307,13 +308,50 @@ function Players() {
 			</Table.Thead>
 			<Table.Tbody>
 				{
-					Object.entries(players).map(([playerName, { shieldDurability, currentShield, currentHealth, maxHealth }], i) => {
+					Object.entries(players).map(([playerName, { barrier, shieldDurability, currentShield, currentHealth, maxHealth }], i) => {
 						return (
 							<Table.Tr key={i}>
 								<Table.Td>{playerName}</Table.Td>
 								<Table.Td>
 									<NumberInput
-										w={100}
+										hideControls
+										w={80}
+										allowDecimal={false}
+										allowNegative={false}
+										value={barrier}
+										max={99}
+										onChange={value => useHealthStore.setState(state => ({
+											players: {
+												...state.players,
+												[playerName]: {
+													...state.players[playerName],
+													barrier: +value
+												}
+											}
+										}))}
+										rightSection={(
+											<Stack gap={0} ml={8}>
+												<ActionIcon
+													size='xs'
+													color='green'
+													onClick={() => useHealthStore.getState().updatePlayerBarrier(playerName, 'add')}
+												>
+													<IconPlus />
+												</ActionIcon>
+												<ActionIcon
+													size='xs'
+													color='red'
+													onClick={() => useHealthStore.getState().updatePlayerBarrier(playerName, 'remove')}
+												>
+													<IconMinus />
+												</ActionIcon>
+											</Stack>
+										)}
+									/>
+								</Table.Td>
+								<Table.Td>
+									<NumberInput
+										w={80}
 										allowDecimal={false}
 										allowNegative={false}
 										value={shieldDurability}
@@ -332,7 +370,7 @@ function Players() {
 								<Table.Td>
 									<NumberInput
 										hideControls
-										w={100}
+										w={80}
 										allowDecimal={false}
 										allowNegative={false}
 										value={currentShield}

@@ -2,6 +2,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useDamageStore } from './useDamageStore'
 
+type CharacterType = 'players' | 'summons'
+type Operation = 'add' | 'remove'
+
 type HealthStore = {
 	players: Record<string, {
 		shieldDurability: number
@@ -9,6 +12,7 @@ type HealthStore = {
 		maxShield: number
 		currentHealth: number
 		maxHealth: number
+		barrier: number
 	}>
 	summons: Record<string, {
 		currentHealth: number
@@ -17,8 +21,9 @@ type HealthStore = {
 	}>
 	addPlayer: (name: string, shieldAmount: number, shieldDurability: number, maxHealth: number) => void
 	addSummon: (name: string, maxHealth: number, healthDrain: number) => void
-	removeCharacter: (name: string, type: 'players' | 'summons') => void
-	updateCurrentHealth: (name: string, operation: 'add' | 'remove', type: 'players' | 'summons') => void
+	removeCharacter: (name: string, type: CharacterType) => void
+	updateCurrentHealth: (name: string, operation: Operation, type: CharacterType) => void
+	updatePlayerBarrier: (name: string, operation: Operation) => void
 	resetPlayerShield: (name: string) => void
 	summonHealthDrain: (name: string) => void
 }
@@ -35,7 +40,8 @@ export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 					currentShield: shieldAmount,
 					maxShield: shieldAmount,
 					currentHealth: maxHealth,
-					maxHealth
+					maxHealth,
+					barrier: 0
 				}
 			}
 		}))
@@ -72,6 +78,25 @@ export const useHealthStore = create<HealthStore>()(persist((set, get) => ({
 					currentHealth: operation === 'add'
 						? Math.min(state[type][name].currentHealth + damage, state[type][name].maxHealth)
 						: Math.max(state[type][name].currentHealth - damage, 0)
+				}
+			}
+		}))
+	},
+	updatePlayerBarrier: (name, operation) => {
+		const damage = useDamageStore.getState().customHit || useDamageStore.getState().result.damage
+		const shieldOverflowDamage = Math.min(get().players[name].barrier - damage, 0)
+
+		set(state => ({
+			players: {
+				...state.players,
+				[name]: {
+					...state.players[name],
+					barrier: operation === 'add'
+						? state.players[name].barrier + damage
+						: Math.max(state.players[name].barrier - damage, 0),
+					currentShield: operation === 'remove'
+						? Math.max(state.players[name].currentShield + shieldOverflowDamage, 0)
+						: state.players[name].currentShield
 				}
 			}
 		}))
